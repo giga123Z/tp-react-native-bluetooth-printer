@@ -23,7 +23,7 @@ npm install tp-react-native-bluetooth-printer --save
 Or install via github
 
 ```bash
-npm install https://github.com/tulparyazilim/tp-react-native-bluetooth-printer.git --save
+npm install https://github.com/giga123Z/tp-react-native-bluetooth-printer.git --save
 ```
 
 ### Step2

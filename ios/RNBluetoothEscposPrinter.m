@@ -649,7 +649,7 @@ RCT_EXPORT_METHOD(openDrawer:(NSString *) str
     }
     pendingReject = nil;
     pendingResolve = nil;
-    [NSThread sleepForTimeInterval:0.05f];//slow down
+    [NSThread sleepForTimeInterval:0.005f];//slow down
 }
 
 @end

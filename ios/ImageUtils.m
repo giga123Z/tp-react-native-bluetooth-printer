@@ -47,7 +47,7 @@ int p6[] = { 0, 0x02 };
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
     CGContextRef context = CGBitmapContextCreate(rgbImage, actualWidth, actualHeight, 8, actualWidth*4, colorSpace,
                                                  kCGBitmapByteOrder32Little | kCGImageAlphaNoneSkipLast);
-    CGContextSetInterpolationQuality(context, kCGInterpolationDefault);
+    CGContextSetInterpolationQuality(context, kCGInterpolationHigh);
     CGContextSetShouldAntialias(context, NO);
     CGContextDrawImage(context, CGRectMake(0, 0, actualWidth, actualHeight), [image CGImage]);
     CGContextRelease(context);

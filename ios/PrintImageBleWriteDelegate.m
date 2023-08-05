@@ -40,7 +40,7 @@
 -(void) print
 {
     @synchronized (self) {
-     NSInteger sizePerLine = (int)(_width/8) * 64;
+     NSInteger sizePerLine = (int)(_width/8);
    // do{
 //        if(sizePerLine+_now>=[_toPrint length]){
 //            sizePerLine = [_toPrint length] - _now;
@@ -51,7 +51,7 @@
             [RNBluetoothManager writeValue:subData withDelegate:self];
         //}
         _now = _now+sizePerLine;
-        [NSThread sleepForTimeInterval:0.01f];
+        [NSThread sleepForTimeInterval:0.001f];
         
     }
     //}while(_now<[_toPrint length]);

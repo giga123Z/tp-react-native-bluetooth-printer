@@ -9,8 +9,8 @@ Pod::Spec.new do |s|
   s.author       = 'tulparyazilim'
   s.homepage     = 'https://github.com/tulparyazilim/tp-react-native-bluetooth-printer'
   s.license      = package["license"]
-  s.platform     = :ios, "13.0"
-  s.source       = { :git => "https://github.com/giga123Z/tp-react-native-bluetooth-printer", :tag => "#{s.version}" }
+  s.platform     = :ios, "9.0"
+  s.source       = { :git => "https://github.com/tulparyazilim/tp-react-native-bluetooth-printer", :tag => "#{s.version}" }
   s.source_files = "ios/**/*.{h,c,m,swift}"
   s.requires_arc = true
   s.dependency "React"

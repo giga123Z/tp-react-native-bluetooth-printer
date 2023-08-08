@@ -51,7 +51,9 @@
             [RNBluetoothManager writeValue:subData withDelegate:self];
         //}
         _now = _now+sizePerLine;
-        [NSThread sleepForTimeInterval:0.002f];
+        //[NSThread sleepForTimeInterval:0.002f];
+        NSTimeInterval timeInSeconds = (NSTimeInterval) _sleep / 1000.0;
+        [NSThread sleepForTimeInterval:timeInSeconds];
         
     }
     //}while(_now<[_toPrint length]);

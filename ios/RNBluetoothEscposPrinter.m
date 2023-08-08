@@ -478,6 +478,8 @@ RCT_EXPORT_METHOD(printPic:(NSString *) base64encodeStr withOptions:(NSDictionar
         @try{
             NSInteger nWidth = [[options valueForKey:@"width"] integerValue];
             if(!nWidth) nWidth = _deviceWidth;
+            NSInteger nSleep = [[options valueForKey:@"sleep"] integerValue];
+            if(!nSleep) nSleep = 30;
             //TODO:need to handel param "left" in the options.
             NSInteger paddingLeft = [[options valueForKey:@"left"] integerValue];
             if(!paddingLeft) paddingLeft = 0;
@@ -489,6 +491,7 @@ RCT_EXPORT_METHOD(printPic:(NSString *) base64encodeStr withOptions:(NSDictionar
             NSInteger imgHeight = jpgImage.size.height;
             NSInteger imagWidth = jpgImage.size.width;
             NSInteger width = nWidth;//((int)(((nWidth*0.86)+7)/8))*8-7;
+            NSInteger sleep = nSleep;
             CGSize size = CGSizeMake(width, imgHeight*width/imagWidth);
             UIImage *scaled = [ImageUtils imageWithImage:jpgImage scaledToFillSize:size];
             if(paddingLeft>0){
@@ -503,6 +506,7 @@ RCT_EXPORT_METHOD(printPic:(NSString *) base64encodeStr withOptions:(NSDictionar
             delegate.pendingResolve = resolve;
             delegate.pendingReject = reject;
             delegate.width = width;
+            delegate.sleep = sleep;
             delegate.toPrint  = dataToPrint;
             delegate.now = 0;
             [delegate print];

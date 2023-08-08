@@ -479,7 +479,7 @@ RCT_EXPORT_METHOD(printPic:(NSString *) base64encodeStr withOptions:(NSDictionar
             NSInteger nWidth = [[options valueForKey:@"width"] integerValue];
             if(!nWidth) nWidth = _deviceWidth;
             NSInteger nSleep = [[options valueForKey:@"sleep"] integerValue];
-            if(!nSleep) nSleep = 30;
+            if(!nSleep) nSleep = 3;
             //TODO:need to handel param "left" in the options.
             NSInteger paddingLeft = [[options valueForKey:@"left"] integerValue];
             if(!paddingLeft) paddingLeft = 0;

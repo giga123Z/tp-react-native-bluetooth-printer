@@ -165,6 +165,7 @@ declare module "tp-react-native-bluetooth-printer" {
     width?: number;
     height?: number;
     left?: number;
+    sleep?: number;
   };
 
   export type PrintLabelOptions = {

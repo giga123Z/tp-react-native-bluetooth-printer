@@ -188,6 +188,49 @@ RCT_EXPORT_METHOD(encodeImage:(NSString *) base64Image withResolve:(RCTPromiseRe
         resolve(encodedImage);
 }
 
+RCT_EXPORT_METHOD(encodeImageV2:(NSDictionary *) options withResolve:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+
+        NSInteger nWidth = [[options valueForKey:@"width"] integerValue];
+        NSInteger mode = [[options valueForKey:@"mode"] integerValue];
+        NSString *base64Image  = [options valueForKey:@"image"];
+        // Kiểm tra xem base64Image có giá trị không
+        if (!base64Image || [base64Image isEqualToString:@""]) {
+            reject(@"INVALID_IMAGE", @"Invalid base64 image", nil);
+            return;
+        }
+
+        // Chuyển đổi base64 string thành dữ liệu
+        NSData *imageData = [[NSData alloc] initWithBase64EncodedString:base64Image options:0];
+
+        // Kiểm tra xem việc chuyển đổi thành công không
+        if (!imageData) {
+            reject(@"INVALID_IMAGE", @"Invalid base64 image data", nil);
+            return;
+        }
+
+        UIImage *b = [[UIImage alloc] initWithData:imageData];
+
+        //[tsc addBitmap:x y:y bitmapMode:mode width:imgWidth bitmap:uiImage];
+
+        CGFloat imgWidth = b.size.width;
+        CGFloat imgHeigth = b.size.height;
+        NSInteger width = (nWidth + 7) / 8 * 8;
+        NSInteger height = imgHeigth * width / imgWidth;
+        UIImage *resized = [ImageUtils imageWithImage:b scaledToFillSize:CGSizeMake(width, height)];
+        uint8_t * graybits = [ImageUtils imageToGreyImage:resized];
+        NSInteger srcLen = (int)resized.size.width*resized.size.height;
+        NSData *codecontent = [ImageUtils pixToTscCmd:graybits width:srcLen];
+
+
+        // Chuyển đổi ảnh đã xử lý thành base64 string
+        NSString *encodedImage = [codecontent base64EncodedStringWithOptions:0];
+
+        // Trả về kết quả qua resolve
+        resolve(encodedImage);
+}
+
 - (void) didWriteDataToBle: (BOOL)success{
     if(success){
         if(_pendingResolve){

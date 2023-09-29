@@ -5,6 +5,7 @@
  
 
 #import <Foundation/Foundation.h>
+#import "ImageUtils.h"
 #import "RNBluetoothTscPrinter.h"
 #import "RNTscCommand.h"
 #import "RNBluetoothManager.h"
@@ -151,6 +152,40 @@ RCT_EXPORT_METHOD(printLabel:(NSDictionary *) options withResolve:(RCTPromiseRes
     toPrint = tsc.command;
     now = 0;
     [RNBluetoothManager writeValue:toPrint withDelegate:self];
+}
+
+RCT_EXPORT_METHOD(encodeImage:(NSString *) base64Image withResolve:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+
+        // Kiểm tra xem base64Image có giá trị không
+        if (!base64Image || [base64Image isEqualToString:@""]) {
+            reject(@"INVALID_IMAGE", @"Invalid base64 image", nil);
+            return;
+        }
+
+        // Chuyển đổi base64 string thành dữ liệu
+        NSData *imageData = [[NSData alloc] initWithBase64EncodedString:base64Image options:0];
+
+        // Kiểm tra xem việc chuyển đổi thành công không
+        if (!imageData) {
+            reject(@"INVALID_IMAGE", @"Invalid base64 image data", nil);
+            return;
+        }
+
+        UIImage *uiImage = [[UIImage alloc] initWithData:imageData];
+
+        // Tiến hành xử lý ảnh ở đây nếu cần
+        uint8_t * graybits = [ImageUtils imageToGreyImage:uiImage];
+        NSInteger srcLen = (int)uiImage.size.width*uiImage.size.height;
+        NSData *codecontent = [ImageUtils pixToTscCmd:graybits width:srcLen];
+
+
+        // Chuyển đổi ảnh đã xử lý thành base64 string
+        NSString *encodedImage = [codecontent base64EncodedStringWithOptions:0];
+
+        // Trả về kết quả qua resolve
+        resolve(encodedImage);
 }
 
 - (void) didWriteDataToBle: (BOOL)success{

@@ -197,6 +197,7 @@ declare module "tp-react-native-bluetooth-printer" {
       | ScannedBluetoothDevices
       | PromiseLike<ScannedBluetoothDevices>;
     static connect(address: string): void | PromiseLike<void>;
+    static disconnect(address: string): void | PromiseLike<void> | string | PromiseLike<string>;
     static getConnectedDevice():
       | BluetoothDevice[]
       | PromiseLike<BluetoothDevice[]>;

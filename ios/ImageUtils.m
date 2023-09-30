@@ -85,7 +85,11 @@ int p6[] = { 0, 0x02 };
             if (colors & kGreen) {sum += (rgbPixel>>16)&255; count++;}
             if (colors & kBlue) {sum += (rgbPixel>>8)&255; count++;}
            // [toLog appendFormat:@"pixel:%d,sum:%d,count:%d,val:%d;",rgbPixel,sum,count,(int)(sum/count)];
-            m_imageData[(int)(y*actualWidth+x)]=sum/count;
+            if(((float)sum/count) >= 80){
+                m_imageData[(int)(y*actualWidth+x)] = 1;
+            }else{
+                m_imageData[(int)(y*actualWidth+x)] = 0;
+            }
            
         }
     }

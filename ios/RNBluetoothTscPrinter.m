@@ -165,7 +165,7 @@ RCT_EXPORT_METHOD(encodeImage:(NSString *) base64Image withResolve:(RCTPromiseRe
         }
 
         // Chuyển đổi base64 string thành dữ liệu
-        NSData *imageData = [[NSData alloc] initWithBase64EncodedString:base64Image options:0];
+        NSData *imageData = [[NSData alloc] initWithBase64EncodedString:base64Image options:1];
 
         // Kiểm tra xem việc chuyển đổi thành công không
         if (!imageData) {
@@ -177,8 +177,8 @@ RCT_EXPORT_METHOD(encodeImage:(NSString *) base64Image withResolve:(RCTPromiseRe
 
         // Tiến hành xử lý ảnh ở đây nếu cần
         uint8_t * graybits = [ImageUtils imageToGreyImage:uiImage];
-        NSInteger srcLen = (int)uiImage.size.width*uiImage.size.height;
-        NSData *codecontent = [ImageUtils pixToTscCmd:graybits width:srcLen];
+        CGFloat srcLen = (float)uiImage.size.width*(float)uiImage.size.height;
+        NSData *codecontent = [ImageUtils pixToTscCmd:graybits width:(int)srcLen];
 
 
         // Chuyển đổi ảnh đã xử lý thành base64 string
@@ -192,9 +192,10 @@ RCT_EXPORT_METHOD(encodeImageV2:(NSDictionary *) options withResolve:(RCTPromise
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
 
-        NSInteger nWidth = [[options valueForKey:@"width"] integerValue];
-        NSInteger mode = [[options valueForKey:@"mode"] integerValue];
+        
         NSString *base64Image  = [options valueForKey:@"image"];
+        NSInteger threshold = [[options valueForKey:@"threshold"] integerValue];
+        
         // Kiểm tra xem base64Image có giá trị không
         if (!base64Image || [base64Image isEqualToString:@""]) {
             reject(@"INVALID_IMAGE", @"Invalid base64 image", nil);
@@ -202,7 +203,7 @@ RCT_EXPORT_METHOD(encodeImageV2:(NSDictionary *) options withResolve:(RCTPromise
         }
 
         // Chuyển đổi base64 string thành dữ liệu
-        NSData *imageData = [[NSData alloc] initWithBase64EncodedString:base64Image options:0];
+        NSData *imageData = [[NSData alloc] initWithBase64EncodedString:base64Image options:1];
 
         // Kiểm tra xem việc chuyển đổi thành công không
         if (!imageData) {
@@ -213,15 +214,10 @@ RCT_EXPORT_METHOD(encodeImageV2:(NSDictionary *) options withResolve:(RCTPromise
         UIImage *b = [[UIImage alloc] initWithData:imageData];
 
         //[tsc addBitmap:x y:y bitmapMode:mode width:imgWidth bitmap:uiImage];
-
-        CGFloat imgWidth = b.size.width;
-        CGFloat imgHeigth = b.size.height;
-        NSInteger width = (nWidth + 7) / 8 * 8;
-        NSInteger height = imgHeigth * width / imgWidth;
-        UIImage *resized = [ImageUtils imageWithImage:b scaledToFillSize:CGSizeMake(width, height)];
-        uint8_t * graybits = [ImageUtils imageToGreyImage:resized];
-        NSInteger srcLen = (int)resized.size.width*resized.size.height;
-        NSData *codecontent = [ImageUtils pixToTscCmd:graybits width:srcLen];
+        
+        uint8_t * graybits = [ImageUtils imageToGreyImageWithThreshold:b threshold:threshold];
+        CGFloat srcLen = (float)b.size.width*(float)b.size.height;
+        NSData *codecontent = [ImageUtils pixToTscCmd:graybits width:(int)srcLen];
 
 
         // Chuyển đổi ảnh đã xử lý thành base64 string

@@ -9,7 +9,7 @@ import com.facebook.react.bridge.*;
 
 import java.util.Map;
 import java.util.Vector;
-
+import cn.jystudio.bluetooth.escpos.command.sdk.PrintPicture;
  
 public class RNBluetoothTscPrinterModule extends ReactContextBaseJavaModule
 implements BluetoothServiceStateObserver{
@@ -180,7 +180,31 @@ implements BluetoothServiceStateObserver{
             promise.reject("COMMAND_SEND_ERROR");
         }
     }
+ 
+    @ReactMethod
+    public void encodeImage(final String base64Image, final Promise promise) {
+        byte[] decoded = Base64.decode(base64Image, Base64.DEFAULT);
+        Bitmap b = BitmapFactory.decodeByteArray(decoded, 0, decoded.length);
+        Bitmap grayBitmap = PrintPicture.toGrayscale(b);
+        byte[] src = PrintPicture.bitmapToBWPix(grayBitmap);
+        byte[] codecontent = PrintPicture.pixToTscCmd(src);
+        String base64String = Base64.encodeToString(codecontent, Base64.DEFAULT);
+        promise.resolve(base64String);
+    }
 
+    @ReactMethod
+    public void encodeImageV2(final ReadableMap options, final Promise promise) {
+        int threshold = options.getInt("threshold");
+        String base64Image  = options.getString("image");
+        byte[] decoded = Base64.decode(base64Image, Base64.DEFAULT);
+        Bitmap b = BitmapFactory.decodeByteArray(decoded, 0, decoded.length);
+        Bitmap grayBitmap = PrintPicture.toGrayscale(b);
+        byte[] src = PrintPicture.bitmapToBWPix(grayBitmap);
+        byte[] codecontent = PrintPicture.pixToTscCmd(src);
+        String base64String = Base64.encodeToString(codecontent, Base64.DEFAULT);
+        promise.resolve(base64String);
+    }
+ 
     private TscCommand.BARCODETYPE findBarcodeType(String type) {
         TscCommand.BARCODETYPE barcodeType = TscCommand.BARCODETYPE.CODE128;
         for (TscCommand.BARCODETYPE t : TscCommand.BARCODETYPE.values()) {

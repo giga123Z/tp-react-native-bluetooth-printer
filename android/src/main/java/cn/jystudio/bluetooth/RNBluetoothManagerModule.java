@@ -15,6 +15,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
+
 import com.facebook.react.bridge.*;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import org.json.JSONArray;
@@ -26,6 +27,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+/**
+ * Created by januslo on 2018/9/22.
+ */
 
 public class RNBluetoothManagerModule extends ReactContextBaseJavaModule
         implements ActivityEventListener, BluetoothServiceStateObserver {

@@ -7,6 +7,7 @@
 @interface ImageUtils :NSObject
 + (UIImage*)imagePadLeft:(NSInteger) left withSource: (UIImage*)source;
 + (uint8_t *)imageToGreyImage:(UIImage *)image;
++ (uint8_t *)imageToGreyImageWithThreshold:(UIImage *)image threshold:(NSInteger) threshold;
 + (UIImage *)imageWithImage:(UIImage *)image scaledToFillSize:(CGSize)size;
 + (NSData*)bitmapToArray:(UIImage*) bmp;
 + (NSData *)eachLinePixToCmd:(unsigned char *)src nWidth:(NSInteger) nWidth nHeight:(NSInteger) nHeight nMode:(NSInteger) nMode;

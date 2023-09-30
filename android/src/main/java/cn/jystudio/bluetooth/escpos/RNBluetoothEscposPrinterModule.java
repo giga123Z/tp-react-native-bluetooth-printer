@@ -315,7 +315,7 @@ public class RNBluetoothEscposPrinterModule extends ReactContextBaseJavaModule
     }
 
     @ReactMethod
-    public void printPic(String base64encodeStr, @Nullable  ReadableMap options) {
+    public void printPic(String base64encodeStr, @Nullable  ReadableMap options, final Promise promise) {
         int width = 0;
         int height = 20;
         int leftPadding = 0;
@@ -345,6 +345,7 @@ public class RNBluetoothEscposPrinterModule extends ReactContextBaseJavaModule
             // sendDataByte(PrinterCommand.POS_Set_Cut(1));
             sendDataByte(PrinterCommand.POS_Set_PrtInit());
         }
+        promise.resolve(null);
     }
 
     @ReactMethod

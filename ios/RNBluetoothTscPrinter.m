@@ -227,6 +227,17 @@ RCT_EXPORT_METHOD(encodeImageV2:(NSDictionary *) options withResolve:(RCTPromise
         resolve(encodedImage);
 }
 
+RCT_EXPORT_METHOD(convertToBitmap:(NSDictionary *) options withResolve:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+
+        NSString *base64Image  = [options valueForKey:@"image"];
+        NSInteger threshold = [[options valueForKey:@"threshold"] integerValue];
+
+        // Trả về kết quả qua resolve
+        resolve(base64Image);
+}
+
 - (void) didWriteDataToBle: (BOOL)success{
     if(success){
         if(_pendingResolve){

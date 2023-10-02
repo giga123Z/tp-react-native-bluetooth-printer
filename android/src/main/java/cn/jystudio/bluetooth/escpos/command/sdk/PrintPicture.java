@@ -302,16 +302,16 @@ public class PrintPicture {
                int sum = 0;
                int count = 0;
 
-               if ((colors & kRed) != 0) {
-                   sum += (pixel >> 16) & 0xFF; // Red
+                if ((colors & kRed) != 0) {
+                   sum += (pixel >> 24) & 255; // Red
                    count++;
                }
                if ((colors & kGreen) != 0) {
-                   sum += (pixel >> 8) & 0xFF; // Green
+                   sum += (pixel >> 16) & 255; // Green
                    count++;
                }
                if ((colors & kBlue) != 0) {
-                   sum += pixel & 0xFF; // Blue
+                   sum += (pixel >> 8) & 255; // Blue
                    count++;
                }
 

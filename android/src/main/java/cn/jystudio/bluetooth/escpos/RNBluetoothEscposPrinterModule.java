@@ -313,7 +313,6 @@ public class RNBluetoothEscposPrinterModule extends ReactContextBaseJavaModule
     public void setWidth(int width) {
         deviceWidth = width;
     }
-
     @ReactMethod
     public void printPic(String base64encodeStr, @Nullable  ReadableMap options, final Promise promise) {
         int width = 0;
@@ -335,9 +334,9 @@ public class RNBluetoothEscposPrinterModule extends ReactContextBaseJavaModule
         Bitmap mBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
         int nMode = 0;
         if (mBitmap != null) {
-            
+
             byte[] data = PrintPicture.POS_PrintBMP(mBitmap, width, nMode, leftPadding);
-            
+
             sendDataByte(Command.ESC_Init);
             sendDataByte(Command.LF);
             sendDataByte(data);
@@ -346,6 +345,43 @@ public class RNBluetoothEscposPrinterModule extends ReactContextBaseJavaModule
             sendDataByte(PrinterCommand.POS_Set_PrtInit());
         }
         promise.resolve(null);
+    }
+
+    @ReactMethod
+    public void createImage(String base64encodeStr, int threshold, final Promise promise) {
+        byte[] bytes = Base64.decode(base64encodeStr, Base64.DEFAULT);
+        Bitmap mBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+        int nMode = 0;
+
+        Bitmap grayBitmap = PrintPicture.toGrayscale(mBitmap);
+        byte[] dithered = PrintPicture.thresholdToBWPicV2(grayBitmap, threshold);
+        byte[] data = PrintPicture.eachLinePixToCmd(dithered, mBitmap.getWidth(), nMode);
+
+        String base64String = Base64.encodeToString(data, Base64.DEFAULT);
+
+
+        // Trả về kết quả qua resolve
+        promise.resolve(base64String);
+    }
+
+    @ReactMethod
+    public void printPicWithThreshold(String base64encodeStr, @Nullable  ReadableMap options, final Promise promise) {
+        int threshold = options.hasKey("threshold") ? options.getInt("threshold") : 200;
+        byte[] bytes = Base64.decode(base64encodeStr, Base64.DEFAULT);
+        Bitmap mBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+        int nMode = 0;
+        if (mBitmap != null) {
+            Bitmap grayBitmap = PrintPicture.toGrayscale(mBitmap);
+            byte[] dithered = PrintPicture.thresholdToBWPicV2(grayBitmap, threshold);
+            byte[] data = PrintPicture.eachLinePixToCmd(dithered, mBitmap.getWidth(), nMode);
+            if(sendDataByte(data)){
+                promise.resolve(null);
+            }else{
+                promise.reject("COMMAND_NOT_SEND");
+            };
+        }else{
+            promise.reject("INVALID_IMAGE");
+        }
     }
 
     @ReactMethod

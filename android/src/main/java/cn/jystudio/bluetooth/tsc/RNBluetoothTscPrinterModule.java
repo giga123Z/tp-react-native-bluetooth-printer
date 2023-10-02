@@ -204,6 +204,17 @@ implements BluetoothServiceStateObserver{
         String base64String = Base64.encodeToString(codecontent, Base64.DEFAULT);
         promise.resolve(base64String);
     }
+    
+    @ReactMethod
+    public void convertToBitmap(final ReadableMap options, final Promise promise) {
+        int threshold = options.getInt("threshold");
+        String base64Image  = options.getString("image");
+        byte[] decoded = Base64.decode(base64Image, Base64.DEFAULT);
+        Bitmap b = BitmapFactory.decodeByteArray(decoded, 0, decoded.length);
+        Bitmap grayBitmap = PrintPicture.toGrayscale(b);
+        byte[] src = PrintPicture.bitmapToBWPixWithThreshold(grayBitmap, threshold);
+        promise.resolve(Base64.encodeToString(src, Base64.DEFAULT));
+    }
  
     private TscCommand.BARCODETYPE findBarcodeType(String type) {
         TscCommand.BARCODETYPE barcodeType = TscCommand.BARCODETYPE.CODE128;

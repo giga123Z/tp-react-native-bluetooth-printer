@@ -288,7 +288,7 @@ public class PrintPicture {
 
     }
 	
-    private static void format_K_dither16x16WithThreshold(int[] orgpixels, int xsize, int ysize, byte[] despixels, init threshold) {
+    private static void format_K_dither16x16WithThreshold(int[] orgpixels, int xsize, int ysize, byte[] despixels, int threshold) {
        int k = 0;
        int kRed = 1;
        int kGreen = 2;

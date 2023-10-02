@@ -266,6 +266,16 @@ declare module "tp-react-native-bluetooth-printer" {
       fontType: number | typeof FONTTYPE,
       fontPosition: number
     ): void | string | PromiseLike<void> | PromiseLike<string>;
+
+    static createImage(
+      base64Image: string,
+      threshold: number
+    ): string | PromiseLike<string>;
+
+    static printPic(
+      base64Image: string,
+      options?: { threshold: number }
+    ): void | PromiseLike<void>;
   }
 
   export class BluetoothTscPrinter {

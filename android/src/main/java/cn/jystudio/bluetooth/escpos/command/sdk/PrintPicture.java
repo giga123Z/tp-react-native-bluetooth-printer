@@ -315,7 +315,7 @@ public class PrintPicture {
                    count++;
                }
 
-               if (((float) sum / count) >= threshold) {
+               if (((float) sum / count) <= threshold) {
                    despixels[k] = 1;
                } else {
                    despixels[k] = 0;

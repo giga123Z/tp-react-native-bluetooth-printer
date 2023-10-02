@@ -148,6 +148,14 @@ public class PrintPicture {
         return data;
     }
 
+    public static byte[] thresholdToBWPicV2(Bitmap mBitmap,int threshold) {
+            int[] pixels = new int[mBitmap.getWidth() * mBitmap.getHeight()];
+            byte[] data = new byte[mBitmap.getWidth() * mBitmap.getHeight()];
+            mBitmap.getPixels(pixels, 0, mBitmap.getWidth(), 0, 0, mBitmap.getWidth(), mBitmap.getHeight());
+            format_K_dither16x16WithThreshold(pixels, mBitmap.getWidth(), mBitmap.getHeight(), data, threshold);
+            return data;
+    }
+
     private static void format_K_threshold(int[] orgpixels, int xsize, int ysize, byte[] despixels) {
         int graytotal = 0;
         boolean grayave = true;

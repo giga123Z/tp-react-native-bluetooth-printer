@@ -199,7 +199,7 @@ implements BluetoothServiceStateObserver{
         byte[] decoded = Base64.decode(base64Image, Base64.DEFAULT);
         Bitmap b = BitmapFactory.decodeByteArray(decoded, 0, decoded.length);
         Bitmap grayBitmap = PrintPicture.toGrayscale(b);
-        byte[] src = PrintPicture.bitmapToBWPix(grayBitmap);
+        byte[] src = PrintPicture.bitmapToBWPixWithThreshold(grayBitmap, threshold);
         byte[] codecontent = PrintPicture.pixToTscCmd(src);
         String base64String = Base64.encodeToString(codecontent, Base64.DEFAULT);
         promise.resolve(base64String);

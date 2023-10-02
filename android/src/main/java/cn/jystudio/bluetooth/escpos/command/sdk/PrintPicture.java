@@ -260,6 +260,16 @@ public class PrintPicture {
         format_K_dither16x16(pixels, grayBitmap.getWidth(), grayBitmap.getHeight(), data);
         return data;
     }
+	
+    public static byte[] bitmapToBWPixWithThreshold(Bitmap mBitmap, int threshold) {
+            int[] pixels = new int[mBitmap.getWidth() * mBitmap.getHeight()];
+            byte[] data = new byte[mBitmap.getWidth() * mBitmap.getHeight()];
+            Bitmap grayBitmap = toGrayscale(mBitmap);
+            grayBitmap.getPixels(pixels, 0, mBitmap.getWidth(), 0, 0, mBitmap.getWidth(), mBitmap.getHeight());
+            format_K_dither16x16WithThreshold(pixels, grayBitmap.getWidth(), grayBitmap.getHeight(), data, threshold);
+            return data;
+    }
+
 
     private static void format_K_dither16x16(int[] orgpixels, int xsize, int ysize, byte[] despixels) {
         int k = 0;
@@ -276,6 +286,44 @@ public class PrintPicture {
             }
         }
 
+    }
+	
+    private static void format_K_dither16x16WithThreshold(int[] orgpixels, int xsize, int ysize, byte[] despixels, init threshold) {
+       int k = 0;
+       int kRed = 1;
+       int kGreen = 2;
+       int kBlue = 4;
+
+       int colors = kRed | kGreen | kBlue;
+
+       for (int y = 0; y < ysize; ++y) {
+           for (int x = 0; x < xsize; ++x) {
+               int pixel = orgpixels[k];
+               int sum = 0;
+               int count = 0;
+
+               if ((colors & kRed) != 0) {
+                   sum += (pixel >> 16) & 0xFF; // Red
+                   count++;
+               }
+               if ((colors & kGreen) != 0) {
+                   sum += (pixel >> 8) & 0xFF; // Green
+                   count++;
+               }
+               if ((colors & kBlue) != 0) {
+                   sum += pixel & 0xFF; // Blue
+                   count++;
+               }
+
+               if (((float) sum / count) >= threshold) {
+                   despixels[k] = 1;
+               } else {
+                   despixels[k] = 0;
+               }
+
+               k++;
+           }
+       }
     }
 
 }

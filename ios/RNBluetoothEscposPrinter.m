@@ -541,7 +541,7 @@ RCT_EXPORT_METHOD(createImage:(NSString *) base64encodeStr withOptions:(NSDictio
             
             // Chuyển đổi ảnh đã xử lý thành base64 string
             NSString *encodedImage = [dataToPrint base64EncodedStringWithOptions:0];
-    
+            
             // Trả về kết quả qua resolve
             resolve(encodedImage);
         }

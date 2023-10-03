@@ -267,11 +267,13 @@ declare module "tp-react-native-bluetooth-printer" {
       fontPosition: number
     ): void | string | PromiseLike<void> | PromiseLike<string>;
 
+    //Dùng createImage để tạo buffer image cho in NetPrinter
     static createImage(
       base64Image: string,
       threshold: number
     ): string | PromiseLike<string>;
     
+    //Dùng printPicWithThreshold in với threshold cho in bill bluetooth
     static printPicWithThreshold(
       base64Image: string,
       options?: { threshold: number, sleep: number}
@@ -291,7 +293,7 @@ declare module "tp-react-native-bluetooth-printer" {
     static convertToBitmap(
       options: {image: string, threshold: number}
     ): string | PromiseLike<string>;
-
+    //Dùng encodeImageV2 để mã hóa ảnh cho in tem mã vạch
     static encodeImageV2(
       options: {image: string, threshold: number}
     ): string | PromiseLike<string>;

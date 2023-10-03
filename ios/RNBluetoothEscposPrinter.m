@@ -520,14 +520,12 @@ RCT_EXPORT_METHOD(printPic:(NSString *) base64encodeStr withOptions:(NSDictionar
     }
 }
 
-RCT_EXPORT_METHOD(createImage:(NSString *) base64encodeStr withOptions:(NSDictionary *) options
+RCT_EXPORT_METHOD(createImage:(NSString *) base64encodeStr threshold:(NSInteger *) threshold
                   resolver:(RCTPromiseResolveBlock) resolve
                   rejecter:(RCTPromiseRejectBlock) reject)
 {
-    if(RNBluetoothManager.isConnected){
         @try{
             //TODO:need to handel param "left" in the options.
-            NSInteger threshold = [[options valueForKey:@"threshold"] integerValue];
             NSData *decoded = [[NSData alloc] initWithBase64EncodedString:base64encodeStr options:1 ];
             UIImage *srcImage = [[UIImage alloc] initWithData:decoded scale:1];
             NSData *jpgData = UIImageJPEGRepresentation(srcImage, 1);
@@ -549,9 +547,6 @@ RCT_EXPORT_METHOD(createImage:(NSString *) base64encodeStr withOptions:(NSDictio
             NSLog(@"ERROR IN PRINTING IMG: %@",[e callStackSymbols]);
             reject(@"COMMAND_NOT_SEND",@"COMMAND_NOT_SEND",nil);
         }
-    }else{
-        reject(@"COMMAND_NOT_SEND",@"COMMAND_NOT_SEND",nil);
-    }
 }
 
 RCT_EXPORT_METHOD(printPicWithThreshold:(NSString *) base64encodeStr withOptions:(NSDictionary *) options

@@ -554,29 +554,21 @@ RCT_EXPORT_METHOD(createImage:(NSString *) base64encodeStr withOptions:(NSDictio
     }
 }
 
-RCT_EXPORT_METHOD(printPicWithThreshold:(NSString *) base64encodeStr withOptions:(NSDictionary *) options
+RCT_EXPORT_METHOD(printRawImage:(NSString *) base64encodeStr withOptions:(NSDictionary *) options
                   resolver:(RCTPromiseResolveBlock) resolve
                   rejecter:(RCTPromiseRejectBlock) reject)
 {
     if(RNBluetoothManager.isConnected){
         @try{
-            NSInteger threshold = [[options valueForKey:@"threshold"] integerValue];
             NSInteger nSleep = [[options valueForKey:@"sleep"] integerValue];
+            NSInteger width = [[options valueForKey:@"width"] integerValue];
+            NSInteger height = [[options valueForKey:@"height"] integerValue];
             if(!nSleep) nSleep = 3;
-            NSData *decoded = [[NSData alloc] initWithBase64EncodedString:base64encodeStr options:1 ];
-            UIImage *srcImage = [[UIImage alloc] initWithData:decoded scale:1];
-            NSData *jpgData = UIImageJPEGRepresentation(srcImage, 1);
-            UIImage *jpgImage = [[UIImage alloc] initWithData:jpgData];
-            NSInteger imgHeight = jpgImage.size.height;
-            NSInteger imagWidth = jpgImage.size.width;
-            NSInteger sleep = nSleep;
-            unsigned char * graImage = [ImageUtils imageToGreyImageWithThreshold:jpgImage threshold:threshold];
-            unsigned char * formatedData = [ImageUtils format_K_threshold:graImage width:imagWidth height:imgHeight];
-            NSData *dataToPrint = [ImageUtils eachLinePixToCmd:formatedData nWidth:imagWidth nHeight:imgHeight nMode:0];
+            NSData *dataToPrint = [[NSData alloc] initWithBase64EncodedString:base64encodeStr options:0 ];
             PrintImageBleWriteDelegate *delegate = [[PrintImageBleWriteDelegate alloc] init];
             delegate.pendingResolve = resolve;
             delegate.pendingReject = reject;
-            delegate.width = imagWidth;
+            delegate.width = width;
             delegate.sleep = sleep;
             delegate.toPrint  = dataToPrint;
             delegate.now = 0;

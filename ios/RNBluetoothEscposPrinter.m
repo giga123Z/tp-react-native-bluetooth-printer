@@ -520,6 +520,39 @@ RCT_EXPORT_METHOD(printPic:(NSString *) base64encodeStr withOptions:(NSDictionar
     }
 }
 
+RCT_EXPORT_METHOD(createImage:(NSString *) base64encodeStr withOptions:(NSDictionary *) options
+                  resolver:(RCTPromiseResolveBlock) resolve
+                  rejecter:(RCTPromiseRejectBlock) reject)
+{
+    if(RNBluetoothManager.isConnected){
+        @try{
+            //TODO:need to handel param "left" in the options.
+            NSInteger threshold = [[options valueForKey:@"threshold"] integerValue];
+            NSData *decoded = [[NSData alloc] initWithBase64EncodedString:base64encodeStr options:1 ];
+            UIImage *srcImage = [[UIImage alloc] initWithData:decoded scale:1];
+            NSData *jpgData = UIImageJPEGRepresentation(srcImage, 1);
+            UIImage *jpgImage = [[UIImage alloc] initWithData:jpgData];
+            NSInteger imgHeight = jpgImage.size.height;
+            NSInteger imagWidth = jpgImage.size.width;
+            
+            unsigned char * graImage = [ImageUtils imageToGreyImageWithThreshold:jpgImage threshold:threshold];
+            NSData *dataToPrint = [ImageUtils eachLinePixToCmd:graImage nWidth:imagWidth nHeight:imgHeight nMode:0];
+            
+            // Chuyển đổi ảnh đã xử lý thành base64 string
+            NSString *encodedImage = [dataToPrint base64EncodedStringWithOptions:0];
+    
+            // Trả về kết quả qua resolve
+            resolve(encodedImage);
+        }
+        @catch(NSException *e){
+            NSLog(@"ERROR IN PRINTING IMG: %@",[e callStackSymbols]);
+            reject(@"COMMAND_NOT_SEND",@"COMMAND_NOT_SEND",nil);
+        }
+    }else{
+        reject(@"COMMAND_NOT_SEND",@"COMMAND_NOT_SEND",nil);
+    }
+}
+
 RCT_EXPORT_METHOD(printQRCode:(NSString *)content
                   withSize:(NSInteger) size
                   correctionLevel:(NSInteger) correctionLevel

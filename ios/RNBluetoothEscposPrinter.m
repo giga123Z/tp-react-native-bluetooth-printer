@@ -536,7 +536,8 @@ RCT_EXPORT_METHOD(createImage:(NSString *) base64encodeStr withOptions:(NSDictio
             NSInteger imagWidth = jpgImage.size.width;
             
             unsigned char * graImage = [ImageUtils imageToGreyImageWithThreshold:jpgImage threshold:threshold];
-            NSData *dataToPrint = [ImageUtils eachLinePixToCmd:graImage nWidth:imagWidth nHeight:imgHeight nMode:0];
+            unsigned char * formatedData = [ImageUtils format_K_threshold:graImage width:imagWidth height:imgHeight];
+            NSData *dataToPrint = [ImageUtils eachLinePixToCmd:formatedData nWidth:imagWidth nHeight:imgHeight nMode:0];
             
             // Chuyển đổi ảnh đã xử lý thành base64 string
             NSString *encodedImage = [dataToPrint base64EncodedStringWithOptions:0];
@@ -569,8 +570,9 @@ RCT_EXPORT_METHOD(printPicWithThreshold:(NSString *) base64encodeStr withOptions
             NSInteger imgHeight = jpgImage.size.height;
             NSInteger imagWidth = jpgImage.size.width;
             NSInteger sleep = nSleep;
-            unsigned char * graImage = [ImageUtils imageToGreyImageWithThreshold:graImage threshold:threshold];
-            NSData *dataToPrint = [ImageUtils eachLinePixToCmd:graImage nWidth:imagWidth nHeight:imgHeight nMode:0];
+            unsigned char * graImage = [ImageUtils imageToGreyImageWithThreshold:jpgImage threshold:threshold];
+            unsigned char * formatedData = [ImageUtils format_K_threshold:graImage width:imagWidth height:imgHeight];
+            NSData *dataToPrint = [ImageUtils eachLinePixToCmd:formatedData nWidth:imagWidth nHeight:imgHeight nMode:0];
             PrintImageBleWriteDelegate *delegate = [[PrintImageBleWriteDelegate alloc] init];
             delegate.pendingResolve = resolve;
             delegate.pendingReject = reject;

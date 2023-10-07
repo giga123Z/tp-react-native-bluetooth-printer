@@ -74,12 +74,35 @@
     }
     self.check = @"error-connection";
 
+    [self.inputStream close];
+    [self.outputStream close];
 
+    [self.inputStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    [self.outputStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+
+    [self.inputStream setDelegate:nil];
+    [self.outputStream setDelegate:nil];
+
+    [self.inputStream release];
+    [self.outputStream release];
+
+    self.inputStream = nil;
+    self.outputStream = nil;
 }
 
 - (void)disconnect {
     [self.inputStream close];
     [self.outputStream close];
+
+    [self.inputStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    [self.outputStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+
+    [self.inputStream setDelegate:nil];
+    [self.outputStream setDelegate:nil];
+
+    [self.inputStream release];
+    [self.outputStream release];
+
     self.inputStream = nil;
     self.outputStream = nil;
 }

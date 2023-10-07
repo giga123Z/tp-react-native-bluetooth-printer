@@ -14,7 +14,7 @@
 
 @property (nonatomic, strong) NSInputStream *inputStream;
 @property (nonatomic, strong) NSOutputStream *outputStream;
-@property (nonatomic) NSInteger check;
+@property (nonatomic) NSString check;
 - (void)connectToPrinterAtIPAddress:(NSString *)ipAddress port:(NSInteger)port;
 - (void)disconnect;
 - (void)sendArrayCommands:(NSArray<NSString *> *)base64Commands;
@@ -24,21 +24,21 @@
 @implementation ESCPosPrinterConnection
 
 - (void)sendArrayCommands:(NSArray<NSString *> *)base64Commands {
-    self.check = 0;
+    self.check = "sending";
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         @autoreleasepool {
             for (NSString *base64Command in base64Commands) {
                 NSData *commandData = [[NSData alloc] initWithBase64EncodedString:base64Command options:NSDataBase64DecodingIgnoreUnknownCharacters];
                 NSInteger bytesWritten = [self.outputStream write:commandData.bytes maxLength:commandData.length];
                 if (bytesWritten == -1) {
-                   self.check = -2;
+                   self.check = "error-send";
                    break;
                 }
             }
-            self.check = 1;
+            self.check = "success";
         }
     });
-    while (self.check != 1) {
+    while (self.check == "sending") {
         // Sleep for a short time to avoid busy-waiting
         [NSThread sleepForTimeInterval:.002];
     }
@@ -66,14 +66,12 @@
     while(count < 50){
         [NSThread sleepForTimeInterval:.05];//Chờ để kết nối duoc thiet lap
         if (self.inputStream.streamStatus == NSStreamStatusOpen && self.outputStream.streamStatus == NSStreamStatusOpen) {
-            self.check = 1;
+            self.check = "success";
             return;
         }
         count += 1;
     }
-    self.check = -1;
-
-
+    self.check = "error-connection";
 }
 
 - (void)disconnect {
@@ -309,7 +307,7 @@ RCT_EXPORT_METHOD(autoReleaseNetPrintRawData:(NSArray<NSString *> *)base64Comman
 {
         ESCPosPrinterConnection *printerConnection = [[ESCPosPrinterConnection alloc] init];
         [printerConnection connectToPrinterAtIPAddress:ip port:9100];
-        if(printerConnection.check == -1){
+        if(printerConnection.check != "success"){
             NSLog(@"Loi ket noi");
             resolve(printerConnection.check);
             return;

@@ -327,7 +327,7 @@ RCT_EXPORT_METHOD(encodeImageV2:(NSDictionary *) options withResolve:(RCTPromise
         resolve(encodedImage);
 }
 
-RCT_EXPORT_METHOD(autoReleaseNetPrintRawData:(NSArray<NSString *> *)base64Commands ip:(NSString *)ip withResolve:(RCTPromiseResolveBlock)resolve
+RCT_EXPORT_METHOD(autoReleaseNetPrintRawData:(NSArray<NSDictionary *> *)base64Commands ip:(NSString *)ip withResolve:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
         ESCPosPrinterConnection *printerConnection = [[ESCPosPrinterConnection alloc] init];

@@ -14,19 +14,42 @@
 
 @property (nonatomic, strong) NSInputStream *inputStream;
 @property (nonatomic, strong) NSOutputStream *outputStream;
-
+@property (nonatomic) NSInteger check;
 - (void)connectToPrinterAtIPAddress:(NSString *)ipAddress port:(NSInteger)port;
-- (void)sendFeedPaperCommand;
 - (void)disconnect;
+- (void)sendArrayCommands:(NSArray<NSString *> *)base64Commands;
 
 @end
 
 @implementation ESCPosPrinterConnection
 
+- (void)sendArrayCommands:(NSArray<NSString *> *)base64Commands {
+    self.check = 0;
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        @autoreleasepool {
+            for (NSString *base64Command in base64Commands) {
+                NSData *commandData = [[NSData alloc] initWithBase64EncodedString:base64Command options:NSDataBase64DecodingIgnoreUnknownCharacters];
+                NSInteger bytesWritten = [self.outputStream write:commandData.bytes maxLength:commandData.length];
+                if (bytesWritten == -1) {
+                   self.check = -2;
+                   break;
+                }
+            }
+            self.check = 1;
+        }
+    });
+    while (self.check != 1) {
+        // Sleep for a short time to avoid busy-waiting
+        [NSThread sleepForTimeInterval:.002];
+    }
+}
+
 - (void)connectToPrinterAtIPAddress:(NSString *)ipAddress port:(NSInteger)port {
+
     CFReadStreamRef readStream;
     CFWriteStreamRef writeStream;
     CFStreamCreatePairWithSocketToHost(NULL, (__bridge CFStringRef)ipAddress, (UInt32)port, &readStream, &writeStream);
+
 
     self.inputStream = (__bridge NSInputStream *)readStream;
     self.outputStream = (__bridge NSOutputStream *)writeStream;
@@ -39,30 +62,18 @@
 
     [self.inputStream open];
     [self.outputStream open];
-}
-
-- (void)sendDataToPrinter:(NSData *)data {
-    if (self.outputStream) {
-        NSInteger bytesWritten = [self.outputStream write:data.bytes maxLength:data.length];
-        if (bytesWritten == -1) {
-            NSLog(@"Error writing to printer");
+    NSInteger count = 0;
+    while(count < 50){
+        [NSThread sleepForTimeInterval:.05];//Chờ để kết nối duoc thiet lap
+        if (self.inputStream.streamStatus == NSStreamStatusOpen && self.outputStream.streamStatus == NSStreamStatusOpen) {
+            self.check = 1;
+            return;
         }
+        count += 1;
     }
-}
+    self.check = -1;
 
-- (void)sendFeedPaperCommand {
-    // ESC/POS command to feed paper (partial cut)
-    unsigned char feedPaperCommand[] = {0x1B, 0x64, 0x02};
-    NSData *data = [NSData dataWithBytes:feedPaperCommand length:sizeof(feedPaperCommand)];
-    [self sendDataToPrinter:data];
-    [self sendDataToPrinter:data];
-    [self sendDataToPrinter:data];
-    [self sendDataToPrinter:data];
-    [self sendDataToPrinter:data];
 
-    unsigned char cutPaperCommand[] = {0x1D, 0x56, 0x00};
-    NSData *dataCut = [NSData dataWithBytes:cutPaperCommand length:sizeof(cutPaperCommand)];
-    [self sendDataToPrinter:dataCut];
 }
 
 - (void)disconnect {
@@ -72,14 +83,6 @@
     self.outputStream = nil;
 }
 
-- (void)stream:(NSStream *)aStream handleEvent:(NSStreamEvent)eventCode {
-    if (eventCode == NSStreamEventErrorOccurred) {
-        NSLog(@"Stream error occurred");
-    } else if (eventCode == NSStreamEventEndEncountered) {
-        NSLog(@"Stream end encountered");
-        [self disconnect];
-    }
-}
 
 @end
 
@@ -297,23 +300,28 @@ RCT_EXPORT_METHOD(encodeImageV2:(NSDictionary *) options withResolve:(RCTPromise
         // Chuyển đổi ảnh đã xử lý thành base64 string
         NSString *encodedImage = [codecontent base64EncodedStringWithOptions:0];
 
-
-         ESCPosPrinterConnection *printerConnection = [[ESCPosPrinterConnection alloc] init];
-         [printerConnection connectToPrinterAtIPAddress:@"192.168.2.199" port:9100];
-
-         // Send the feed paper command
-         [printerConnection sendFeedPaperCommand];
-
-         // When done, disconnect from the printer
-         [printerConnection disconnect];
-
-
-
-
         // Trả về kết quả qua resolve
         resolve(encodedImage);
 }
 
+RCT_EXPORT_METHOD(autoReleaseNetPrintRawData:(NSArray<NSString *> *)base64Commands ip:(NSString *)ip withResolve:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+        ESCPosPrinterConnection *printerConnection = [[ESCPosPrinterConnection alloc] init];
+        [printerConnection connectToPrinterAtIPAddress:ip port:9100];
+        if(printerConnection.check == -1){
+            NSLog(@"Loi ket noi");
+            resolve(printerConnection.check);
+            return;
+         }
+         // Send the feed paper command
+         [printerConnection sendArrayCommands:base64Commands];
+         // When done, disconnect from the printer
+         [printerConnection disconnect];
+
+         // Trả về kết quả qua resolve
+         resolve(printerConnection.check);
+}
 
 - (void) didWriteDataToBle: (BOOL)success{
     if(success){

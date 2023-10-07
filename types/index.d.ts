@@ -294,5 +294,10 @@ declare module "tp-react-native-bluetooth-printer" {
     static encodeImageV2(
       options: {image: string, threshold: number}
     ): string | PromiseLike<string>;
+
+    static autoReleaseNetPrintRawData(
+      arrayBase64: [string], ip: string
+    ): string | PromiseLike<string>;
+
   }
 }

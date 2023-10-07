@@ -17,23 +17,27 @@
 @property (nonatomic) NSString *check;
 - (void)connectToPrinterAtIPAddress:(NSString *)ipAddress port:(NSInteger)port;
 - (void)disconnect;
-- (void)sendArrayCommands:(NSArray<NSString *> *)base64Commands;
+- (void)sendArrayCommands:(NSArray<NSDictionary *> *)arrayData;
 
 @end
 
 @implementation ESCPosPrinterConnection
 
-- (void)sendArrayCommands:(NSArray<NSString *> *)base64Commands {
+- (void)sendArrayCommands:(NSArray<NSDictionary *> *)arrayData {
     self.check = @"sending";
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         @autoreleasepool {
-            for (NSString *base64Command in base64Commands) {
+            for (NSDictionary *data in arrayData) {
+                NSInteger sleep = [[data valueForKey:@"sleep"] integerValue];
+                NSString *base64Command = [data valueForKey:@"rawData"];
+
                 NSData *commandData = [[NSData alloc] initWithBase64EncodedString:base64Command options:NSDataBase64DecodingIgnoreUnknownCharacters];
                 NSInteger bytesWritten = [self.outputStream write:commandData.bytes maxLength:commandData.length];
                 if (bytesWritten == -1) {
                    self.check = @"error-send";
                    break;
                 }
+                [NSThread sleepForTimeInterval:(float)sleep/1000];
             }
             self.check = @"success";
         }

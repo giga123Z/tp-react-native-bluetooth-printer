@@ -83,9 +83,6 @@
     [self.inputStream setDelegate:nil];
     [self.outputStream setDelegate:nil];
 
-    [self.inputStream release];
-    [self.outputStream release];
-
     self.inputStream = nil;
     self.outputStream = nil;
 }
@@ -99,9 +96,6 @@
 
     [self.inputStream setDelegate:nil];
     [self.outputStream setDelegate:nil];
-
-    [self.inputStream release];
-    [self.outputStream release];
 
     self.inputStream = nil;
     self.outputStream = nil;

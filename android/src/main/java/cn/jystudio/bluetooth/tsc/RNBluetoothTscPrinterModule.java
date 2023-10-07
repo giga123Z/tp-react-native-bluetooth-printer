@@ -7,8 +7,19 @@ import cn.jystudio.bluetooth.BluetoothService;
 import cn.jystudio.bluetooth.BluetoothServiceStateObserver;
 import com.facebook.react.bridge.*;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.util.Map;
 import java.util.Vector;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
 import cn.jystudio.bluetooth.escpos.command.sdk.PrintPicture;
  
 public class RNBluetoothTscPrinterModule extends ReactContextBaseJavaModule
@@ -204,7 +215,57 @@ implements BluetoothServiceStateObserver{
         String base64String = Base64.encodeToString(codecontent, Base64.DEFAULT);
         promise.resolve(base64String);
     }
- 
+
+    @ReactMethod
+    public void autoReleaseNetPrintRawData(final ReadableArray arrayData, final String ip, final Promise promise) {
+        final ExecutorService executorService = Executors.newSingleThreadExecutor();
+        Callable<String> task = new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                Socket socket = new Socket();
+                try {
+                    // Connect to the printer
+                    socket.connect(new InetSocketAddress(ip, 9100), 2000); // 2-second timeout
+                    // Get the output stream from the socket
+                    OutputStream outputStream = socket.getOutputStream();
+                    if (arrayData != null && arrayData.size() > 0) {
+                        for(int i = 0; i < arrayData.size(); i++){
+                            ReadableMap item = arrayData.getMap(i); // Lấy phần tử đầu tiên từ mảng
+                            if (item != null) {
+                                String rawData = item.getString("rawData");
+                                byte[] decoded = Base64.decode(rawData, Base64.DEFAULT);
+                                int sleep = item.getInt("sleep");
+                                // Send data to the printer
+                                outputStream.write(decoded);
+                                TimeUnit.MILLISECONDS.sleep((long) sleep);
+                            }
+                        }
+                    }
+                    // Close the output stream and socket
+                    outputStream.close();
+                    socket.close();
+                    return "success";
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    // Call the onError callback with the exception
+                    return "error-connection";
+                }
+            }
+        };
+        Future<String> future =  executorService.submit(task);
+        executorService.shutdown();
+        String result = null; // Lấy kết quả của nhiệm vụ
+        try {
+            result = future.get();
+        } catch (InterruptedException e) {
+            result = "error-connection";
+        } catch (ExecutionException e) {
+            result = "error-connection";
+        }
+        System.out.println("Result: " + result);
+        promise.resolve(result);
+    }
+
     private TscCommand.BARCODETYPE findBarcodeType(String type) {
         TscCommand.BARCODETYPE barcodeType = TscCommand.BARCODETYPE.CODE128;
         for (TscCommand.BARCODETYPE t : TscCommand.BARCODETYPE.values()) {

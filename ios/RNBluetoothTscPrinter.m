@@ -48,25 +48,27 @@
         [NSThread sleepForTimeInterval:.002];
     }
 }
-
 - (void)connectToPrinterAtIPAddress:(NSString *)ipAddress port:(NSInteger)port {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        @autoreleasepool {
+            CFReadStreamRef readStream;
+            CFWriteStreamRef writeStream;
+            CFStreamCreatePairWithSocketToHost(NULL, (__bridge CFStringRef)ipAddress, (UInt32)port, &readStream, &writeStream);
 
-    CFReadStreamRef readStream;
-    CFWriteStreamRef writeStream;
-    CFStreamCreatePairWithSocketToHost(NULL, (__bridge CFStringRef)ipAddress, (UInt32)port, &readStream, &writeStream);
 
+            self.inputStream = (__bridge NSInputStream *)readStream;
+            self.outputStream = (__bridge NSOutputStream *)writeStream;
 
-    self.inputStream = (__bridge NSInputStream *)readStream;
-    self.outputStream = (__bridge NSOutputStream *)writeStream;
+            self.inputStream.delegate = self;
+            self.outputStream.delegate = self;
 
-    self.inputStream.delegate = self;
-    self.outputStream.delegate = self;
+            [self.inputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+            [self.outputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
 
-    [self.inputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-    [self.outputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-
-    [self.inputStream open];
-    [self.outputStream open];
+            [self.inputStream open];
+            [self.outputStream open];
+        }
+    });
     NSInteger count = 0;
     while(count < 50){
         [NSThread sleepForTimeInterval:.05];//Chờ để kết nối duoc thiet lap

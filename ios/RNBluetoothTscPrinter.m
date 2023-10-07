@@ -10,6 +10,80 @@
 #import "RNTscCommand.h"
 #import "RNBluetoothManager.h"
 
+@interface ESCPosPrinterConnection : NSObject <NSStreamDelegate>
+
+@property (nonatomic, strong) NSInputStream *inputStream;
+@property (nonatomic, strong) NSOutputStream *outputStream;
+
+- (void)connectToPrinterAtIPAddress:(NSString *)ipAddress port:(NSInteger)port;
+- (void)sendFeedPaperCommand;
+- (void)disconnect;
+
+@end
+
+@implementation ESCPosPrinterConnection
+
+- (void)connectToPrinterAtIPAddress:(NSString *)ipAddress port:(NSInteger)port {
+    CFReadStreamRef readStream;
+    CFWriteStreamRef writeStream;
+    CFStreamCreatePairWithSocketToHost(NULL, (__bridge CFStringRef)ipAddress, (UInt32)port, &readStream, &writeStream);
+
+    self.inputStream = (__bridge NSInputStream *)readStream;
+    self.outputStream = (__bridge NSOutputStream *)writeStream;
+
+    self.inputStream.delegate = self;
+    self.outputStream.delegate = self;
+
+    [self.inputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    [self.outputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+
+    [self.inputStream open];
+    [self.outputStream open];
+}
+
+- (void)sendDataToPrinter:(NSData *)data {
+    if (self.outputStream) {
+        NSInteger bytesWritten = [self.outputStream write:data.bytes maxLength:data.length];
+        if (bytesWritten == -1) {
+            NSLog(@"Error writing to printer");
+        }
+    }
+}
+
+- (void)sendFeedPaperCommand {
+    // ESC/POS command to feed paper (partial cut)
+    unsigned char feedPaperCommand[] = {0x1B, 0x64, 0x02};
+    NSData *data = [NSData dataWithBytes:feedPaperCommand length:sizeof(feedPaperCommand)];
+    [self sendDataToPrinter:data];
+    [self sendDataToPrinter:data];
+    [self sendDataToPrinter:data];
+    [self sendDataToPrinter:data];
+    [self sendDataToPrinter:data];
+
+    unsigned char cutPaperCommand[] = {0x1D, 0x56, 0x00};
+    NSData *dataCut = [NSData dataWithBytes:cutPaperCommand length:sizeof(cutPaperCommand)];
+    [self sendDataToPrinter:dataCut];
+}
+
+- (void)disconnect {
+    [self.inputStream close];
+    [self.outputStream close];
+    self.inputStream = nil;
+    self.outputStream = nil;
+}
+
+- (void)stream:(NSStream *)aStream handleEvent:(NSStreamEvent)eventCode {
+    if (eventCode == NSStreamEventErrorOccurred) {
+        NSLog(@"Stream error occurred");
+    } else if (eventCode == NSStreamEventEndEncountered) {
+        NSLog(@"Stream end encountered");
+        [self disconnect];
+    }
+}
+
+@end
+
+
 @implementation RNBluetoothTscPrinter
 
 NSData *toPrint;
@@ -222,6 +296,19 @@ RCT_EXPORT_METHOD(encodeImageV2:(NSDictionary *) options withResolve:(RCTPromise
 
         // Chuyển đổi ảnh đã xử lý thành base64 string
         NSString *encodedImage = [codecontent base64EncodedStringWithOptions:0];
+
+
+         ESCPosPrinterConnection *printerConnection = [[ESCPosPrinterConnection alloc] init];
+         [printerConnection connectToPrinterAtIPAddress:@"192.168.2.199" port:9100];
+
+         // Send the feed paper command
+         [printerConnection sendFeedPaperCommand];
+
+         // When done, disconnect from the printer
+         [printerConnection disconnect];
+
+
+
 
         // Trả về kết quả qua resolve
         resolve(encodedImage);

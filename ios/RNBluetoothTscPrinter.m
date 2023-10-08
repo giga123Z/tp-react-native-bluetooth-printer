@@ -74,7 +74,7 @@
 
     while ([self.check isEqualToString:@"sending"]) {
         // Sleep for a short time to avoid busy-waiting
-        [NSThread sleepForTimeInterval:.002];
+        [NSThread sleepForTimeInterval:.01];
     }
 }
 - (void)connectToPrinterAtIPAddress:(NSString *)ipAddress port:(NSInteger)port {

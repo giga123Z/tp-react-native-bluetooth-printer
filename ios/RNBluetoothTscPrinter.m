@@ -32,11 +32,40 @@
                 NSString *base64Command = [data valueForKey:@"rawData"];
 
                 NSData *commandData = [[NSData alloc] initWithBase64EncodedString:base64Command options:NSDataBase64DecodingIgnoreUnknownCharacters];
-                NSInteger bytesWritten = [self.outputStream write:commandData.bytes maxLength:commandData.length];
-                if (bytesWritten == -1) {
-                   self.check = @"error-send";
-                   break;
+
+//                 NSInteger bytesWritten = [self.outputStream write:commandData.bytes maxLength:commandData.length];
+//                 if (bytesWritten == -1) {
+//                    self.check = @"error-send";
+//                    return;
+//                 }
+
+                NSInteger totalBytesWritten = 0;
+                NSInteger bufferSize = 64 * 1024; // Set the desired buffer size
+
+                while (totalBytesWritten < commandData.length) {
+                    NSInteger bytesRemaining = commandData.length - totalBytesWritten;
+                    NSInteger bytesToWrite = MIN(bufferSize, bytesRemaining);
+                    NSData *chunkData = [commandData subdataWithRange:NSMakeRange(totalBytesWritten, bytesToWrite)];
+                    NSInteger bytesWritten = [self.outputStream write:chunkData.bytes maxLength:bytesToWrite];
+
+                    if (bytesWritten == -1) {
+                        // Handle error
+                        self.check = @"error-send";
+                        return;
+                    }
+
+                    totalBytesWritten += bytesWritten;
                 }
+
+                // You can check if all data has been sent here
+                if (totalBytesWritten == commandData.length) {
+                    // All data has been sent successfully
+                } else {
+                    // Handle partial send or error
+                    self.check = @"error-send";
+                    return;
+                }
+
                 [NSThread sleepForTimeInterval:(float)sleep/1000];
             }
             self.check = @"success";

@@ -565,7 +565,7 @@ RCT_EXPORT_METHOD(printPicWithThreshold:(NSString *) base64encodeStr withOptions
             NSInteger imgHeight = srcImage.size.height;
             NSInteger imagWidth = srcImage.size.width;
             NSInteger sleep = nSleep;
-            unsigned char * graImage = [ImageUtils imageToGreyImageWithThreshold:jpgImage threshold:threshold];
+            unsigned char * graImage = [ImageUtils imageToGreyImageWithThreshold:srcImage threshold:threshold];
             //unsigned char * formatedData = [ImageUtils format_K_threshold:graImage width:imagWidth height:imgHeight];
             NSData *dataToPrint = [ImageUtils eachLinePixToCmd:graImage nWidth:imagWidth nHeight:imgHeight nMode:0];
             PrintImageBleWriteDelegate *delegate = [[PrintImageBleWriteDelegate alloc] init];

@@ -528,14 +528,14 @@ RCT_EXPORT_METHOD(createImage:(NSString *) base64encodeStr threshold:(NSInteger 
             //TODO:need to handel param "left" in the options.
             NSData *decoded = [[NSData alloc] initWithBase64EncodedString:base64encodeStr options:1 ];
             UIImage *srcImage = [[UIImage alloc] initWithData:decoded scale:1];
-            NSData *jpgData = UIImageJPEGRepresentation(srcImage, 1);
-            UIImage *jpgImage = [[UIImage alloc] initWithData:jpgData];
-            NSInteger imgHeight = jpgImage.size.height;
-            NSInteger imagWidth = jpgImage.size.width;
+            //NSData *jpgData = UIImageJPEGRepresentation(srcImage, 1);
+            //UIImage *jpgImage = [[UIImage alloc] initWithData:jpgData];
+            NSInteger imgHeight = srcImage.size.height;
+            NSInteger imagWidth = srcImage.size.width;
             
-            unsigned char * graImage = [ImageUtils imageToGreyImageWithThreshold:jpgImage threshold:threshold];
-            unsigned char * formatedData = [ImageUtils format_K_threshold:graImage width:imagWidth height:imgHeight];
-            NSData *dataToPrint = [ImageUtils eachLinePixToCmd:formatedData nWidth:imagWidth nHeight:imgHeight nMode:0];
+            unsigned char * graImage = [ImageUtils imageToGreyImageWithThreshold:srcImage threshold:threshold];
+//             unsigned char * formatedData = [ImageUtils format_K_threshold:graImage width:imagWidth height:imgHeight];
+            NSData *dataToPrint = [ImageUtils eachLinePixToCmd:graImage nWidth:imagWidth nHeight:imgHeight nMode:0];
             
             // Chuyển đổi ảnh đã xử lý thành base64 string
             NSString *encodedImage = [dataToPrint base64EncodedStringWithOptions:0];
@@ -560,14 +560,14 @@ RCT_EXPORT_METHOD(printPicWithThreshold:(NSString *) base64encodeStr withOptions
             if(!nSleep) nSleep = 3;
             NSData *decoded = [[NSData alloc] initWithBase64EncodedString:base64encodeStr options:1 ];
             UIImage *srcImage = [[UIImage alloc] initWithData:decoded scale:1];
-            NSData *jpgData = UIImageJPEGRepresentation(srcImage, 1);
-            UIImage *jpgImage = [[UIImage alloc] initWithData:jpgData];
-            NSInteger imgHeight = jpgImage.size.height;
-            NSInteger imagWidth = jpgImage.size.width;
+//             NSData *jpgData = UIImageJPEGRepresentation(srcImage, 1);
+//             UIImage *jpgImage = [[UIImage alloc] initWithData:jpgData];
+            NSInteger imgHeight = srcImage.size.height;
+            NSInteger imagWidth = srcImage.size.width;
             NSInteger sleep = nSleep;
             unsigned char * graImage = [ImageUtils imageToGreyImageWithThreshold:jpgImage threshold:threshold];
-            unsigned char * formatedData = [ImageUtils format_K_threshold:graImage width:imagWidth height:imgHeight];
-            NSData *dataToPrint = [ImageUtils eachLinePixToCmd:formatedData nWidth:imagWidth nHeight:imgHeight nMode:0];
+            //unsigned char * formatedData = [ImageUtils format_K_threshold:graImage width:imagWidth height:imgHeight];
+            NSData *dataToPrint = [ImageUtils eachLinePixToCmd:graImage nWidth:imagWidth nHeight:imgHeight nMode:0];
             PrintImageBleWriteDelegate *delegate = [[PrintImageBleWriteDelegate alloc] init];
             delegate.pendingResolve = resolve;
             delegate.pendingReject = reject;

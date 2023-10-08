@@ -344,7 +344,7 @@ RCT_EXPORT_METHOD(encodeImageV2:(NSDictionary *) options withResolve:(RCTPromise
 
         //[tsc addBitmap:x y:y bitmapMode:mode width:imgWidth bitmap:uiImage];
         
-        uint8_t * graybits = [ImageUtils imageToGreyImageWithThreshold:b threshold:threshold];
+        uint8_t * graybits = [ImageUtils imageToGreyImageWithThresholdTsc:b threshold:threshold];
         CGFloat srcLen = (float)b.size.width*(float)b.size.height;
         NSData *codecontent = [ImageUtils pixToTscCmd:graybits width:(int)srcLen];
 

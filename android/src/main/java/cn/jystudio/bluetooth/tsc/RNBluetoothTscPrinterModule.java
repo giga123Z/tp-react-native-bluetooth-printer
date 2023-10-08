@@ -26,7 +26,9 @@ public class RNBluetoothTscPrinterModule extends ReactContextBaseJavaModule
 implements BluetoothServiceStateObserver{
     private static final String TAG="BluetoothTscPrinter";
     private BluetoothService mService;
-
+    private interface PrintCallback {
+        void onResult(String message);
+    }
     public RNBluetoothTscPrinterModule(ReactApplicationContext reactContext,BluetoothService bluetoothService) {
         super(reactContext);
         this.mService = bluetoothService;
@@ -264,6 +266,46 @@ implements BluetoothServiceStateObserver{
         }
         System.out.println("Result: " + result);
         promise.resolve(result);
+    }
+
+    @ReactMethod
+    public void autoReleaseNetPrintRawDataAsync(final ReadableArray arrayData, final String ip, final Promise promise) {
+        final ExecutorService executorService = Executors.newSingleThreadExecutor();
+        Runnable task = new Runnable() {
+            @Override
+            public void run() {
+                Socket socket = new Socket();
+                try {
+                    // Connect to the printer
+                    socket.connect(new InetSocketAddress(ip, 9100), 2000); // 2-second timeout
+                    // Get the output stream from the socket
+                    OutputStream outputStream = socket.getOutputStream();
+                    if (arrayData != null && arrayData.size() > 0) {
+                        for(int i = 0; i < arrayData.size(); i++){
+                            ReadableMap item = arrayData.getMap(i); // Lấy phần tử đầu tiên từ mảng
+                            if (item != null) {
+                                String rawData = item.getString("rawData");
+                                byte[] decoded = Base64.decode(rawData, Base64.DEFAULT);
+                                int sleep = item.getInt("sleep");
+                                // Send data to the printer
+                                outputStream.write(decoded);
+                                TimeUnit.MILLISECONDS.sleep((long) sleep);
+                            }
+                        }
+                    }
+                    // Close the output stream and socket
+                    outputStream.close();
+                    socket.close();
+                    promise.resolve("success");
+                } catch (IOException | InterruptedException e) {
+                    e.printStackTrace();
+                    // Call the onError callback with the exception
+                    promise.resolve("error-connection");
+                }
+            }
+        };
+        executorService.execute(task);
+        executorService.shutdown();
     }
 
     private TscCommand.BARCODETYPE findBarcodeType(String type) {

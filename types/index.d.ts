@@ -299,5 +299,9 @@ declare module "tp-react-native-bluetooth-printer" {
       arrayData: Array<{rawData:string,sleep:number}>, ip: string
     ): string | PromiseLike<string>;
 
+    static autoReleaseNetPrintRawDataAsync(
+      arrayData: Array<{rawData:string,sleep:number}>, ip: string
+    ): string | PromiseLike<string>;
+
   }
 }

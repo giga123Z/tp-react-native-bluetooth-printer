@@ -346,6 +346,27 @@ RCT_EXPORT_METHOD(autoReleaseNetPrintRawData:(NSArray<NSDictionary *> *)base64Co
          resolve(printerConnection.check);
 }
 
+RCT_EXPORT_METHOD(autoReleaseNetPrintRawDataAsync:(NSArray<NSDictionary *> *)arrayData ip:(NSString *)ip withResolve:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+          dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                ESCPosPrinterConnection *printerConnection = [[ESCPosPrinterConnection alloc] init];
+                [printerConnection connectToPrinterAtIPAddress:ip port:9100];
+                if(![printerConnection.check isEqualToString: @"success"]){
+                    NSLog(@"Loi ket noi");
+                    resolve(printerConnection.check);
+                    return;
+                 }
+                 // Send the feed paper command
+                 [printerConnection sendArrayCommands:base64Commands];
+                 // When done, disconnect from the printer
+                 [printerConnection disconnect];
+
+                 // Trả về kết quả qua resolve
+                 resolve(printerConnection.check);
+           });
+}
+
 - (void) didWriteDataToBle: (BOOL)success{
     if(success){
         if(_pendingResolve){

@@ -358,7 +358,7 @@ RCT_EXPORT_METHOD(autoReleaseNetPrintRawDataAsync:(NSArray<NSDictionary *> *)arr
                     return;
                  }
                  // Send the feed paper command
-                 [printerConnection sendArrayCommands:base64Commands];
+                 [printerConnection sendArrayCommands:arrayData];
                  // When done, disconnect from the printer
                  [printerConnection disconnect];
 

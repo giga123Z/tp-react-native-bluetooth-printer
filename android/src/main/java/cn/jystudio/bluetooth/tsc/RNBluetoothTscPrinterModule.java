@@ -308,6 +308,47 @@ implements BluetoothServiceStateObserver{
         executorService.shutdown();
     }
 
+    @ReactMethod
+    public void autoReleaseBluetoothPrintRawDataAsync(final ReadableArray arrayData, final Promise promise) {
+        final ExecutorService executorService = Executors.newSingleThreadExecutor();
+        Runnable task = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    boolean hasError = false;
+                    if (arrayData != null && arrayData.size() > 0) {
+                        for(int i = 0; i < arrayData.size(); i++){
+                            ReadableMap item = arrayData.getMap(i); // Lấy phần tử đầu tiên từ mảng
+                            if (item != null) {
+                                String rawData = item.getString("rawData");
+                                byte[] decoded = Base64.decode(rawData, Base64.DEFAULT);
+                                int sleep = item.getInt("sleep");
+                                // Send data to the printer
+                                if(sendDataByte(tosend)){
+                                    TimeUnit.MILLISECONDS.sleep((long) sleep);
+                                }else{
+                                    hasError = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if(hasError == false){
+                        promise.resolve("success");
+                    }else{
+                        promise.resolve("error-connection");
+                    }
+                } catch (IOException | InterruptedException e) {
+                    e.printStackTrace();
+                    // Call the onError callback with the exception
+                    promise.resolve("error-connection");
+                }
+            }
+        };
+        executorService.execute(task);
+        executorService.shutdown();
+    }
+
     private TscCommand.BARCODETYPE findBarcodeType(String type) {
         TscCommand.BARCODETYPE barcodeType = TscCommand.BARCODETYPE.CODE128;
         for (TscCommand.BARCODETYPE t : TscCommand.BARCODETYPE.values()) {

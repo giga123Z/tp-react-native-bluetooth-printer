@@ -324,7 +324,7 @@ implements BluetoothServiceStateObserver{
                                 byte[] decoded = Base64.decode(rawData, Base64.DEFAULT);
                                 int sleep = item.getInt("sleep");
                                 // Send data to the printer
-                                if(sendDataByte(tosend)){
+                                if(sendDataByte(decoded)){
                                     TimeUnit.MILLISECONDS.sleep((long) sleep);
                                 }else{
                                     hasError = true;

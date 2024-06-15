@@ -338,7 +338,7 @@ implements BluetoothServiceStateObserver{
                     }else{
                         promise.resolve("error-connection");
                     }
-                } catch (IOException | InterruptedException e) {
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                     // Call the onError callback with the exception
                     promise.resolve("error-connection");

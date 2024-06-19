@@ -356,6 +356,19 @@ RCT_EXPORT_METHOD(encodeImageV2:(NSDictionary *) options withResolve:(RCTPromise
         resolve(encodedImage);
 }
 
+RCT_EXPORT_METHOD(printBluetoothData:(NSString *) base64Data withResolve:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+
+    NSData *commandData = [[NSData alloc] initWithBase64EncodedString:base64Data options:NSDataBase64DecodingIgnoreUnknownCharacters];
+
+    _pendingReject = reject;
+    _pendingResolve = resolve;
+    toPrint = commandData;
+    now = 0;
+    [RNBluetoothManager writeValue:toPrint withDelegate:self];
+}
+
 RCT_EXPORT_METHOD(autoReleaseNetPrintRawData:(NSArray<NSDictionary *> *)base64Commands ip:(NSString *)ip withResolve:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {

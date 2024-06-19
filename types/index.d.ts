@@ -303,9 +303,14 @@ declare module "tp-react-native-bluetooth-printer" {
       arrayData: Array<{rawData:string,sleep:number}>, ip: string
     ): string | PromiseLike<string>;
 
+    //Dùng cho android in tem nhãn qua bluetooth
     static autoReleaseBluetoothPrintRawDataAsync(
       arrayData: Array<{rawData:string,sleep:number}>
     ): string | PromiseLike<string>;
 
+   //Dùng cho ios in tem nhãn qua bluetooth
+    static printBluetoothData(
+      base64Data: string
+    ): void | string | PromiseLike<void> | PromiseLike<string>;
   }
 }

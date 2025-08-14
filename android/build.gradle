@@ -1,18 +1,9 @@
 buildscript {
     repositories {
-        jcenter { url "https://jcenter.bintray.com/" }
-        maven {url "https://repo.spring.io/plugins-release/"}
+        google()
         mavenCentral()
-        maven {
-            // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
-            url "$rootDir/../node_modules/react-native/android"
-        }
-        maven {
-            url 'https://maven.google.com'
-        }
     }
-
-    dependencies { 
+    dependencies {
         classpath 'com.android.tools.build:gradle:7.4.2'
     }
 }
@@ -28,33 +19,35 @@ android {
         versionCode 1
         versionName "1.0"
     }
-    lintOptions {
-        abortOnError false
-    }
+
     sourceSets {
         main {
             aidl.srcDirs = ['src/main/java']
         }
     }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 repositories {
     google()
-    jcenter { url "https://jcenter.bintray.com/" }
-    maven {url "https://repo.spring.io/plugins-release/"}
     mavenCentral()
-    maven {
-        // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
-        url "$rootDir/../node_modules/react-native/android"
-    }
-    maven {
-        url 'https://maven.google.com'
-    }
+    maven { url "$rootDir/../node_modules/react-native/android" }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.facebook.react:react-native:+'  // From node_modules 
-    implementation group: 'com.android.support', name: 'support-v4', version: '27.0.0'
+    implementation 'com.facebook.react:react-native:+'  // Use the React Native version from node_modules
+
+    // 🔄 CHUYỂN TỪ support-v4 sang AndroidX nếu cần (nếu không thì xoá)
+    implementation "androidx.core:core:1.12.0"
+
     implementation "com.google.zxing:core:3.3.0"
 }
